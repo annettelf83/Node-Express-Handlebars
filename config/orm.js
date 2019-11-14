@@ -1,91 +1,28 @@
-//O.R.M FUNCTIONS THAT TAKE IN INPUTS AND TURNS THEM INTO SQL DATBASE COMMANDS.
-
-var connection = require('../config/connection.js');
-
-//OBJECT RELATIONAL MAPPER (O.R.M)
-function printQuestionMarks(num) {
-    var arr = [];
-
-    for (var i = 0; i < num; i++) {
-        arr.push('?');
-    }
-
-    return arr.toString();
-}
-
-function objToSql(ob) {
-    //COLUMN=VALUE, COLUMN2=VALUE2,....
-    var arr = [];
-
-    for (var key in ob) {
-        if (ob.hasOwnProperty(key)) {
-            arr.push(key + '=' +  ob[key]);
-        }
-    }
-
-    return arr.toString();
-}
+var connection = require("./connection.js");
 
 var orm = {
-    all: function(tableInput, cb) {
-        var queryString = 'SELECT * FROM ' + tableInput + ';';
-        connection.query(queryString, function(err, result) {
-                if (err) throw err;
-                cb(result);
-        });
-    },
-    //VALS IS AN ARRAY OF VALUES THAT WE WANT TO SAVE TO COLS
-    //COLS ARE THE COUMNS WE WANT TO INSERT THE VALUES INTO
+	selectAll: () => {
+		var queryString = "SELECT * FROM burgers_db.burgers";
+		console.log(queryString);
 
-    create: function(table, cols, vals, cb) {
-        console.log(vals);
-        var queryString = 'INSERT INTO ' + table;
+		connection.query(queryString, (err, res) => {
+			console.log(res);
+		});
+	},
 
-        queryString = queryString + ' (';
-        queryString = queryString + cols.toString();
-        queryString = queryString + ') ';
-        queryString = queryString + 'VALUES (';
-        queryString = queryString + printQuestionMarks(vals.length);
-        queryString = queryString + ') ';
+	insertOne: () => {
+		var queryString = `INSERT INTO burgers_db.burgers(burger_name)
+		VALUES ?`;
+		var value;
 
-        console.log('\nQuery:', queryString);
+		console.log(queryString);
 
-        connection.query(queryString, vals, function(err, result) {
-            if (err) throw err;
-            cb(result);
-        });
-    },
-    //objColVals WOULD BE THE COLUMNS AND VALUES THAT YOU WANT TO UPDATE 
-    //AN EXAMPLE OF objColVals WOULD BE {NAME: RAMIRO, TIRED: TRUE}
+		connection.query(queryString, value, (err, res) => {
+			if (err) throw err;
 
-    devour: function(table, objColVals, condition, cb) {
-        var queryString = 'UPDATE ' + table;
-
-        queryString = queryString + ' SET ';
-        queryString = queryString + objToSql(objColVals);
-        queryString = queryString + ' WHERE ';
-        queryString = queryString + condition;
-
-        console.log('\nQuery:', queryString);
-        connection.query(queryString, function(err, result) {
-            if (err) throw err;
-            cb(result);
-        });
-
-    },
-
-    clear: function(table, condition, cb) {
-        var queryString = 'DELETE FROM ' + table;
-
-        queryString = queryString + ' WHERE ';
-        queryString = queryString + condition;
-
-        console.log('\nQuery:', queryString);
-        connection.query(queryString, function(err, result) {
-            if (err) throw err;
-            cb(result);
-        });
-    }   
+			console.log(res);
+		});
+	}
 };
 
 module.exports = orm;
